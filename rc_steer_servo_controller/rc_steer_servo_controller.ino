@@ -45,12 +45,11 @@ void publishBatteryVoltages()
 
   int m1 = motor_battery_voltage;
   int m2 = fabs(motor_battery_voltage * 100) - abs(m1 * 100);
-  
   int p1 = pc_battery_voltage;
   int p2 = fabs(pc_battery_voltage * 100) - abs(p1 * 100);
   
   char temp_char_array[50];
-  sprintf(temp_char_array, "MOTORS:%d.%d,PC:%d.%d",m1, m2, p1, p2);// motor_battery_voltage, pc_battery_voltage);
+  sprintf(temp_char_array, "MOTORS[%02d.%02d]PC[%02d.%02d]",m1, m2, p1, p2);// motor_battery_voltage, pc_battery_voltage);
   batteryVoltagesMsg.data = temp_char_array;
   batteryVoltagesPublisher.publish(&batteryVoltagesMsg);
 }
