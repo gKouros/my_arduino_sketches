@@ -1,6 +1,6 @@
 /* UV LED Exposure Box - Arduino Code
- * LCD + TIMER + UV LED matrix Control + 
- * + Piezo Buzzer + INC,DEC,RESET time button 
+ * LCD + TIMER + UV LED matrix Control +
+ * + Piezo Buzzer + INC,DEC,RESET time button
  */
 // libraries
 #include <LiquidCrystal.h>
@@ -16,11 +16,11 @@ int seconds = 0;
 //                RS,rw, E,  D4, D5, D6, D7
 LiquidCrystal lcd(10, 7, 11, 12, 13, A0, A1);
 
-void setup() 
+void setup()
 {
   noInterrupts();
   // setup IO pins
-  pinMode(buzzerPin, OUTPUT);  
+  pinMode(buzzerPin, OUTPUT);
   pinMode(basePin, OUTPUT);
   digitalWrite(basePin, LOW); // initialize base pin of transistor to 0V
   pinMode(incButton, INPUT);
@@ -43,13 +43,13 @@ void setup()
   interrupts();
 }
 
-void loop() 
+void loop()
 {
   if (seconds != 0){
-    if (digitalRead(basePin) != HIGH) 
-      digitalWrite(basePin, HIGH);   
+    if (digitalRead(basePin) != HIGH)
+      digitalWrite(basePin, HIGH);
     stopwatch();
-  }  
+  }
 }
 
 void stopwatch()
@@ -72,7 +72,7 @@ void lcdPrint(int mins, int secs)
    int mins1 = abs(mins/10);
    int mins0 = abs(mins%10);
    int secs1 = abs(secs/10);
-   int secs0 = abs(secs%10); 
+   int secs0 = abs(secs%10);
    lcd.print(String(mins1)+String(mins0)+":"+String(secs1)+String(secs0));
 }
 
@@ -108,7 +108,7 @@ void decTime(){
   while(true)
   {
     if(digitalRead(decButton) == HIGH) //sw released
-    { 
+    {
       delay(20);
       break;
     }
