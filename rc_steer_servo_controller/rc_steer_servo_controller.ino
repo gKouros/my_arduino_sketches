@@ -18,7 +18,7 @@ void frontSteerServoCommandCallback(const std_msgs::Float64& command)
   double cmd = (command.data > 0) ? floor(command.data * 180 / PI) : ceil(command.data * 180 / PI);
   uint16_t angle = clampAngle(cmd) + ANGLE_OFFSET;
   frontSteerServo.write(angle);
-  
+
   // publish feedback
   frontSteerServoAngleMsg.data = (static_cast<double>(angle) - ANGLE_OFFSET) / 180 * PI;
   frontSteerServoFeedbackPublisher.publish(&frontSteerServoAngleMsg);
@@ -47,7 +47,7 @@ void publishBatteryVoltages()
   int m2 = fabs(motor_battery_voltage * 100) - abs(m1 * 100);
   int p1 = pc_battery_voltage;
   int p2 = fabs(pc_battery_voltage * 100) - abs(p1 * 100);
-  
+
   char temp_char_array[50];
   sprintf(temp_char_array, "MOTORS[%02d.%02d]PC[%02d.%02d]",m1, m2, p1, p2);// motor_battery_voltage, pc_battery_voltage);
   batteryVoltagesMsg.data = temp_char_array;
@@ -74,7 +74,7 @@ void setup()
   nh.advertise(frontSteerServoFeedbackPublisher);
   nh.advertise(rearSteerServoFeedbackPublisher);
   nh.advertise(batteryVoltagesPublisher);
-  
+
   frontSteerServo.attach(FRONT_STEER_SERVO_PIN);
   rearSteerServo.attach(REAR_STEER_SERVO_PIN);
 }
