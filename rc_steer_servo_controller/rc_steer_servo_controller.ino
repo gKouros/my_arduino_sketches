@@ -1,38 +1,61 @@
+/******************************************************************************
+Copyright (c) 2016, George Kouros
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of my_arduino_sketches nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+******************************************************************************/
+
 #include "rc_steer_servo_controller.h"
-
-
-/* Subscriber and Publisher declarations*/
-ros::Subscriber<std_msgs::Float64>
-  frontSteerServoCommandSubscriber("/front_steer_controller/command", frontSteerServoCommandCallback);
-ros::Subscriber<std_msgs::Float64>
-  rearSteerServoCommandSubscriber("/rear_steer_controller/command", rearSteerServoCommandCallback);
-ros::Publisher frontSteerServoFeedbackPublisher("/front_steer_controller/state", &frontSteerServoAngleMsg);
-ros::Publisher rearSteerServoFeedbackPublisher("/rear_steer_controller/state", &rearSteerServoAngleMsg);
-ros::Publisher batteryVoltagesPublisher("/batteries/voltage", &batteryVoltagesMsg);
-
 
 /* Callback Functions */
 void frontSteerServoCommandCallback(const std_msgs::Float64& command)
 {
   // write servo command
-  double cmd = (command.data > 0) ? floor(command.data * 180 / PI) : ceil(command.data * 180 / PI);
+  double cmd = (command.data > 0) ?
+    floor(command.data * 180 / PI) : ceil(command.data * 180 / PI);
   uint16_t angle = clampAngle(cmd) + ANGLE_OFFSET;
   frontSteerServo.write(angle);
 
   // publish feedback
-  frontSteerServoAngleMsg.data = (static_cast<double>(angle) - ANGLE_OFFSET) / 180 * PI;
+  frontSteerServoAngleMsg.data =
+    (static_cast<double>(angle) - ANGLE_OFFSET) / 180 * PI;
   frontSteerServoFeedbackPublisher.publish(&frontSteerServoAngleMsg);
 }
 
 void rearSteerServoCommandCallback(const std_msgs::Float64& command)
 {
   // write servo command
-  double cmd = (command.data > 0) ? floor(command.data * 180 / PI) : ceil(command.data * 180 / PI);
+  double cmd = (command.data > 0) ?
+    floor(command.data * 180 / PI) : ceil(command.data * 180 / PI);
   uint16_t angle = clampAngle(cmd) + ANGLE_OFFSET;
   rearSteerServo.write(angle);
 
   // publish feedback
-  rearSteerServoAngleMsg.data = (static_cast<double>(angle) - ANGLE_OFFSET) / 180 * PI;
+  rearSteerServoAngleMsg.data =
+    (static_cast<double>(angle) - ANGLE_OFFSET) / 180 * PI;
   rearSteerServoFeedbackPublisher.publish(&rearSteerServoAngleMsg);
 }
 
@@ -40,8 +63,10 @@ void rearSteerServoCommandCallback(const std_msgs::Float64& command)
 /* Functions */
 void publishBatteryVoltages()
 {
-  double motor_battery_voltage = static_cast<double>(analogRead(MOTOR_BATTERY_PIN)) / 1024 * 5 * 10;
-  double pc_battery_voltage = static_cast<double>(analogRead(PC_BATTERY_PIN)) / 1024 * 5 * 10;
+  double motor_battery_voltage =
+    static_cast<double>(analogRead(MOTOR_BATTERY_PIN)) / 1024 * 5 * 10;
+  double pc_battery_voltage =
+    static_cast<double>(analogRead(PC_BATTERY_PIN)) / 1024 * 5 * 10;
 
   int m1 = motor_battery_voltage;
   int m2 = fabs(motor_battery_voltage * 100) - abs(m1 * 100);
@@ -49,7 +74,7 @@ void publishBatteryVoltages()
   int p2 = fabs(pc_battery_voltage * 100) - abs(p1 * 100);
 
   char temp_char_array[50];
-  sprintf(temp_char_array, "MOTORS[%02d.%02d]PC[%02d.%02d]",m1, m2, p1, p2);// motor_battery_voltage, pc_battery_voltage);
+  sprintf(temp_char_array, "MOTORS[%02d.%02d]PC[%02d.%02d]",m1, m2, p1, p2);
   batteryVoltagesMsg.data = temp_char_array;
   batteryVoltagesPublisher.publish(&batteryVoltagesMsg);
 }
@@ -68,15 +93,23 @@ double clampAngle(double angle)
 /* Setup */
 void setup()
 {
+  // initialize ros node
   nh.initNode();
+
+  // initialize ros subscribers and publishers
   nh.subscribe(frontSteerServoCommandSubscriber);
   nh.subscribe(rearSteerServoCommandSubscriber);
   nh.advertise(frontSteerServoFeedbackPublisher);
   nh.advertise(rearSteerServoFeedbackPublisher);
   nh.advertise(batteryVoltagesPublisher);
 
+  // attach pins to servo objects
   frontSteerServo.attach(FRONT_STEER_SERVO_PIN);
   rearSteerServo.attach(REAR_STEER_SERVO_PIN);
+
+  // set servos to home position
+  frontSteerServo.write(0 + ANGLE_OFFSET);
+  rearSteerServo.write(0 + ANGLE_OFFSET);
 }
 
 
