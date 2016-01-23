@@ -61,22 +61,14 @@ void rearSteerServoCommandCallback(const std_msgs::Float64& command)
 
 
 /* Functions */
-void publishBatteryVoltages()
+void publishBatteryVoltage()
 {
-  double motor_battery_voltage =
-    static_cast<double>(analogRead(MOTOR_BATTERY_PIN)) / 1024 * 5 * 10;
-  double pc_battery_voltage =
-    static_cast<double>(analogRead(PC_BATTERY_PIN)) / 1024 * 5 * 10;
+  // read battery voltage
+  batteryVoltageMsg.data = 
+    static_cast<double>(analogRead(BATTERY_PIN)) / 1024 * 5 * 10;
 
-  int m1 = motor_battery_voltage;
-  int m2 = fabs(motor_battery_voltage * 100) - abs(m1 * 100);
-  int p1 = pc_battery_voltage;
-  int p2 = fabs(pc_battery_voltage * 100) - abs(p1 * 100);
-
-  char temp_char_array[50];
-  sprintf(temp_char_array, "MOTORS[%02d.%02d]PC[%02d.%02d]",m1, m2, p1, p2);
-  batteryVoltagesMsg.data = temp_char_array;
-  batteryVoltagesPublisher.publish(&batteryVoltagesMsg);
+  // publish battery voltage
+  batteryVoltagePublisher.publish(&batteryVoltageMsg);
 }
 
 double clampAngle(double angle)
@@ -101,7 +93,7 @@ void setup()
   nh.subscribe(rearSteerServoCommandSubscriber);
   nh.advertise(frontSteerServoFeedbackPublisher);
   nh.advertise(rearSteerServoFeedbackPublisher);
-  nh.advertise(batteryVoltagesPublisher);
+  nh.advertise(batteryVoltagePublisher);
 
   // attach pins to servo objects
   frontSteerServo.attach(FRONT_STEER_SERVO_PIN);
@@ -117,5 +109,5 @@ void setup()
 void loop()
 {
   nh.spinOnce();
-  publishBatteryVoltages();
+  publishBatteryVoltage();
 }

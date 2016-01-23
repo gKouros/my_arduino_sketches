@@ -41,8 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 /* Pin Definitions */
-#define MOTOR_BATTERY_PIN 0
-#define PC_BATTERY_PIN 1
+#define BATTERY_PIN 0
 
 #define FRONT_STEER_SERVO_PIN 5
 #define REAR_STEER_SERVO_PIN 6
@@ -57,8 +56,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Global Variables */
 ros::NodeHandle nh;
 std_msgs::Float64 frontSteerServoAngleMsg, rearSteerServoAngleMsg;
-std_msgs::String batteryVoltagesMsg;
+std_msgs::Float64 batteryVoltageMsg;
 Servo frontSteerServo, rearSteerServo;
+
+
+/* Functions */
+void frontSteerServoCommandCallback(const std_msgs::Float64& command);
+void rearSteerServoCommandCallback(const std_msgs::Float64& command);
+void publishBatteryVoltage();
+double clampAngle(double angle);
+void setup();
+void loop();
 
 
 /* Subscriber and Publisher declarations*/
@@ -70,14 +78,5 @@ ros::Publisher frontSteerServoFeedbackPublisher(
   "/front_steer_controller/state", &frontSteerServoAngleMsg);
 ros::Publisher rearSteerServoFeedbackPublisher(
   "/rear_steer_controller/state", &rearSteerServoAngleMsg);
-ros::Publisher batteryVoltagesPublisher(
-  "/batteries/voltage", &batteryVoltagesMsg);
-
-
-/* Functions */
-void frontSteerServoCommandCallback(const std_msgs::Float64& command);
-void rearSteerServoCommandCallback(const std_msgs::Float64& command);
-void publishBatteryVoltages();
-double clampAngle(double angle);
-void setup();
-void loop();
+ros::Publisher batteryVoltagePublisher(
+  "/battery/voltage", &batteryVoltageMsg);
